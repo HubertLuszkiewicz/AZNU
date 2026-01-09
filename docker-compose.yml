@@ -16,4 +16,13 @@ services:
     container_name: redis
     ports:
       - "6379:6379"
-    
+  compliance:
+    build:
+      context: ./compliance
+      dockerfile: Dockerfile
+    container_name: compliance
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - RABBITMQ_HOST=rabbitmq
