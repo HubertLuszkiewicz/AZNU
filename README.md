@@ -21,13 +21,13 @@ python -m venv venv
 pip install fastapi uvicorn pika redis
 ```
 
-4. Create database and message broker
+4. Create database, message broker and Compliance Service
 
 ```bash
-docker-compose up -d
+docker-compose up --build -d
 ```
 
-5. Run Gateway, Logistics Service, Result Handler and Compliance Service in separate terminals:
+5. Run Gateway, Logistics Service, Result Handler in separate terminals:
 
 - terminal 1:
 
@@ -51,14 +51,6 @@ python main.py
 .\venv\Scripts\activate
 cd logistics
 python result_handler.py
-```
-
-- terminal 4:
-
-```bash
-.\venv\Scripts\activate
-cd compliance
-python main.py
 ```
 
 6. Open **frontend/index.html** file in a browser, fill out the form and send a request.
