@@ -11,8 +11,19 @@ REDIS_HOST = os.getenv("REDIS_HOST", "redis")
 r = redis.Redis(host=REDIS_HOST, port=6379)
 
 def get_channel():
-    connection = pika.BlockingConnection(pika.ConnectionParameters(rabbit_config.HOST, rabbit_config.PORT))
-    return connection.channel()
+    while True:
+        try:
+            connection = pika.BlockingConnection(
+                pika.ConnectionParameters(
+                    rabbit_config.HOST, 
+                    rabbit_config.PORT
+                )
+            )
+            return connection.channel()
+        
+        except pika.exceptions.AMQPConnectionError:
+            print(" [Compliance] Nie można połączyć się z RabbitMQ, ponawianie próby za 5 sekund...")
+            time.sleep(5)
 
 
 def callback(ch, method, properties, body):
