@@ -1,2 +1,5 @@
 pika
 redis
+zeep
+spyne
+lxml

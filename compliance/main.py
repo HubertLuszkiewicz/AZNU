@@ -3,8 +3,12 @@ import json
 import time
 import random
 from Constants import Queues, Statuses, RabbitConfig
+from zeep import Client
 
 rabbit_config = RabbitConfig()
+
+WSDL_URL = "http://compliance-soap:8001/?wsdl"
+SERVICE_METHOD = "CheckWasteLegality"     
 
 def get_channel():
     while True:
@@ -21,6 +25,11 @@ def get_channel():
             print(" [Compliance] Nie można połączyć się z RabbitMQ, ponawianie próby za 5 sekund...")
             time.sleep(5)
 
+def call_soap_service(waste_type: str) -> bool:
+    client = Client(WSDL_URL)
+    response = getattr(client.service, SERVICE_METHOD)(wasteType=waste_type)
+    return bool(response)
+
 def callback(ch, method, properties, body):
     data = json.loads(body)
     req_id = data['id']
@@ -28,20 +37,23 @@ def callback(ch, method, properties, body):
     
     print(f" [Compliance] Weryfikacja prawna dla: {waste_type} (ID: {req_id})")
     
-    # --- TODO: SOAP Client ---
+    try:
+        is_legal = call_soap_service(waste_type)
+    except Exception as e:
+        print(f" [Compliance] Błąd podczas wywoływania usługi SOAP: {e}")
+        is_legal = False 
     
-    time.sleep(10) # udajemy, że system rządowy mieli dane
-    
-    # Prosta logika: "radioactive" jest nielegalne, reszta ok
-    if "radio" in waste_type.lower():
-        status = Statuses.REJECTED
-        print(" [Compliance] Decyzja: ODRZUCONO (Nielegalny odpad)")
-    else:
+    if is_legal:
         status = Statuses.APPROVED
         print(" [Compliance] Decyzja: ZATWIERDZONO (KPO wygenerowane)")
-    # -----------------------------------------
+    else:
+        status = Statuses.REJECTED
+        print(" [Compliance] Decyzja: ODRZUCONO (Nielegalny odpad)")
 
-    # Tutaj kończymy Sagę i wysyłamy wynik do kolejki wyników
+    time.sleep(10)
+
+    print(" [Compliance] Koniec weryfikacji prawnej.")
+
     result_message = {
         "id": req_id,
         "status": status
