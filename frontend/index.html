@@ -78,6 +78,7 @@
             }
 
             const data = await response.json();
+            console.log("Otrzymana odpowiedź z serwera:", data);
             const requestId = data.id;
 
             document.getElementById('resultSection').classList.remove('d-none');

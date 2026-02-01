@@ -1,3 +1,4 @@
+import os
 import pika
 import json
 import time
@@ -5,7 +6,9 @@ import redis
 from Constants import Queues, Statuses, RabbitConfig
 
 rabbit_config = RabbitConfig()
-r = redis.Redis(host='localhost', port=6379, db=0)
+
+REDIS_HOST = os.getenv("REDIS_HOST", "redis") 
+r = redis.Redis(host=REDIS_HOST, port=6379)
 
 def get_channel():
     connection = pika.BlockingConnection(pika.ConnectionParameters(rabbit_config.HOST, rabbit_config.PORT))

@@ -16,6 +16,43 @@ services:
     container_name: redis
     ports:
       - "6379:6379"
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: gateway
+    ports:
+      - "8000:8000"
+    depends_on:
+      - rabbitmq
+      - redis
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - REDIS_HOST=redis
+      
+  logistics:
+    build:
+      context: ./logistics
+      dockerfile: Dockerfile
+    container_name: logistics
+    depends_on:
+      - rabbitmq
+      - redis
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - REDIS_HOST=redis
+      
+  logistics-results:
+    build:
+      context: ./logistics
+      dockerfile: Dockerfile.results
+    container_name: logistics-results
+    depends_on:
+      - rabbitmq
+      - redis
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - REDIS_HOST=redis
   compliance:
     build:
       context: ./compliance

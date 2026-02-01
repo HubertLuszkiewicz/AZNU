@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -19,7 +20,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-r = redis.Redis(host='localhost', port=6379, db=0)
+REDIS_HOST = os.getenv("REDIS_HOST", "redis") 
+r = redis.Redis(host=REDIS_HOST, port=6379)
 
 class DisposalRequest(BaseModel):
     waste_type: str

@@ -1,3 +1,4 @@
+import os
 from enum import Enum
 
 class Queues(str, Enum):
@@ -10,5 +11,5 @@ class Statuses(str, Enum):
     REJECTED = "rejected"
 
 class RabbitConfig:
-    HOST = 'localhost'
+    HOST = os.getenv('RABBITMQ_HOST', 'localhost')
     PORT = 5672
